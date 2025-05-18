@@ -23,5 +23,9 @@ class MigrationAdvisor:
         """
         Use LLM to analyze user context and return migration advice.
         """
-        prompt = f"What is the best migration option for: {user_context}?"
-        return self.llm_service.query_llm(prompt)
+        prompt_type = "admission_advice"
+        variables = {
+            "country": user_context.country,
+            "user_profile": f"Name: {user_context.name}, Goal: {user_context.goal}, Age: {user_context.age}, Budget: {user_context.budget}"
+        }
+        return self.llm_service.run_prompt(prompt_type, variables)
