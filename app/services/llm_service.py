@@ -5,7 +5,8 @@ This module centralizes all LLM queries using reusable prompt templates and clea
 
 import os
 from dotenv import load_dotenv
-from langchain_google_genai import ChatGoogleGenerativeAI
+# from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_ollama import ChatOllama
 from langchain.chains import LLMChain
 from langchain.prompts import PromptTemplate
 
@@ -74,13 +75,16 @@ class LLMService:
         if not api_key:
             raise ValueError("Google API Key not found! Make sure it's set in your .env file.")
 
-        self.llm = ChatGoogleGenerativeAI(
-            model="gemini-1.5-pro-latest",
+        # self.llm = ChatGoogleGenerativeAI(
+        #     model="llama3.2:latest",
+        #     temperature=0.7,
+        #     google_api_key=api_key
+        # )
+        self.llm = ChatOllama(
+            model="llama3.2:latest",
             temperature=0.7,
-            convert_system_message_to_human=True,
-            google_api_key=api_key
+            api_key=api_key
         )
-
     def run_prompt(self, prompt_type: str, variables: dict) -> str:
         """
         Execute a query using a named prompt and input variables.
