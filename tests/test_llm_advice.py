@@ -1,5 +1,5 @@
 import yaml
-from migration_app.services.llm_service import LLMService
+from ..app.services.llm_service import LLMService
 
 # Step 1: Call LLMService with admission advice prompt
 llm = LLMService()
