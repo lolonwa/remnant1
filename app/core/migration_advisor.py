@@ -1,11 +1,6 @@
-# migration_advisor.py - Auto-generated module in remnant/core
-
-"""
-Module: migration_advisor.py
-Location: remnant/core
-Purpose: Describe the functionality here.
-"""
-
+from app.services.llm_service import LLMService
+from app.utils.prompt_factory import PromptFactory
+from app.utils.user_context import UserContext
 
 class MigrationAdvisor:
     """
@@ -13,19 +8,12 @@ class MigrationAdvisor:
     This includes study, work, asylum, and other possible routes.
     """
 
-    def __init__(self, llm_service):
-        """
-        Initialize with a reference to an LLMService instance.
-        """
+    def __init__(self, llm_service: LLMService):
         self.llm_service = llm_service
 
-    def advise(self, user_context):
+    def advise(self, user_context: UserContext) -> str:
         """
         Use LLM to analyze user context and return migration advice.
         """
-        prompt_type = "admission_advice"
-        variables = {
-            "country": user_context.country,
-            "user_profile": f"Name: {user_context.name}, Goal: {user_context.goal}, Age: {user_context.age}, Budget: {user_context.budget}"
-        }
-        return self.llm_service.run_prompt(prompt_type, variables)
+        prompt = PromptFactory.migration_prompt(user_context)
+        return self.llm_service.query_llm(prompt)

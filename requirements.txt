@@ -1,2 +1,6 @@
+python-dotenv
+openai
+# Optional if falling back to LangChain + Ollama
 langchain
-langchain_google_genai
+langchain-community
+langchain-ollama

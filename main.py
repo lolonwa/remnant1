@@ -7,7 +7,7 @@ Purpose: Describe the functionality here.
 """
 
 
-from interface.cli import run_cli
+from app.interface.cli import run_cli
 
 if __name__ == "__main__":
     run_cli()
