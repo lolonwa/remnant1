@@ -1,23 +1,12 @@
-# visa_info.py - Auto-generated module in remnant/core
-
-"""
-Module: visa_info.py
-Location: remnant/core
-Purpose: Describe the functionality here.
-"""
-
+from app.utils.prompt_factory import PromptFactory
 
 class VisaInfoAdvisor:
-    """
-    Provides visa requirements and insights based on country and purpose.
-    """
-
     def __init__(self, llm_service):
         self.llm_service = llm_service
 
     def get_requirements(self, country, purpose):
         """
-        Get visa requirements for a specific country and purpose.
+        Use a structured prompt to retrieve visa requirements.
         """
-        prompt = f"What are the visa requirements for {country} for {purpose}?"
+        prompt = PromptFactory.build_visa_prompt(country, purpose)
         return self.llm_service.query_llm(prompt)

@@ -9,7 +9,7 @@ from openai import OpenAI
 import dotenv 
 from app.utils.prompt_factory import PromptFactory
 
-load_dotenv()  # Load environment variables from .env file
+dotenv.load_dotenv()  # Load environment variables from .env file
 class LLMService:
     """
     LLMService routes prompts to OpenRouter's API (LLaMA 3.3 for now).
