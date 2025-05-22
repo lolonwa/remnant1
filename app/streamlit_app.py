@@ -1,9 +1,9 @@
 # streamlit_app.py
 
 import streamlit as st
-from app.services.llm_service import LLMService
-from app.core.migration_advisor import MigrationAdvisor
-from app.utils.user_context import UserContext
+from services.llm_service import LLMService
+from core.migration_advisor import MigrationAdvisor
+from utils.user_context import UserContext
 
 st.set_page_config(page_title="Remnant Migration Advisor", page_icon="🌍")
 st.title("🌍 Remnant Migration Advisor")
