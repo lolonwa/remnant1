@@ -2,6 +2,8 @@ from app.services.llm_service import LLMService
 from app.core.migration_advisor import MigrationAdvisor
 from app.core.scam_detection import ScamDetector
 from app.utils.user_context import UserContext
+from app.core.scholarship_finder import ScholarshipFinder
+from app.core.visa_info import VisaInfoAdvisor
 
 def run_migration_advisor():
     print("Welcome to Remnant Migration Advisor CLI")
@@ -23,13 +25,32 @@ def run_scam_detection():
     result = detector.analyze_offer(offer_text)
     print("\nScam Detection Result:")
     print(result)
+def run_scholarship_finder():
+    print("\nScholarship Finder Mode")
+    country = input("Enter the country you want scholarships for: ")
+    level = input("Enter the level of study (e.g., undergraduate, masters): ")
+    finder = ScholarshipFinder(LLMService())
+    scholarships = finder.find(country, level)
+    print("\nScholarship Results:")
+    print(scholarships)
+
+def run_visa_info_advisor():
+    print("\nVisa Info Advisor Mode")
+    country = input("Enter the country you want visa information for: ")
+    purpose = input("Enter the purpose (study/work/asylum/etc.): ")
+    visa_advisor = VisaInfoAdvisor(LLMService())
+    info = visa_advisor.get_requirements(country, purpose)
+    print("\nVisa Information:")
+    print(info)
 
 def run_cli():
     while True:
         print("\nRemnant CLI - Choose an option:")
         print("1. Migration Advice")
         print("2. Scam Detection")
-        print("3. Exit")
+        print("3. Scholarship Finder")
+        print("4. Visa Info Advisor")
+        print("5. Exit")
         choice = input("Enter choice number: ")
 
         if choice == "1":
@@ -37,6 +58,10 @@ def run_cli():
         elif choice == "2":
             run_scam_detection()
         elif choice == "3":
+            run_scholarship_finder()
+        elif choice == "4":
+            run_visa_info_advisor()
+        elif choice == "5":
             print("Goodbye!")
             break
         else:
