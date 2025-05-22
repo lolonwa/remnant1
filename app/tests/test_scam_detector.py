@@ -1,20 +1,9 @@
-from app.services.llm_service import LLMService
 from app.core.scam_detection import ScamDetector
+from app.services.llm_service import LLMService
 
-def test_scam_detector():
+def test_scam_detection_basic():
     llm = LLMService()
-    scam_detector = ScamDetector(llm)
-
-    # Sample suspicious offer text
-    offer_text = """
-    Congratulations! You have been pre-approved for a work visa in CountryX.
-    Just send us $500 as a processing fee and your passport details.
-    No interview needed. This offer is 100% guaranteed.
-    """
-
-    result = scam_detector.analyze_offer(offer_text)
-    print("Scam Detection Result:")
-    print(result)
-
-if __name__ == "__main__":
-    test_scam_detector()
+    detector = ScamDetector(llm)
+    fake_offer = "This is a 100% guaranteed visa with no interview and only $500 processing fee."
+    result = detector.analyze_offer(fake_offer)
+    assert "scam" in result.lower() or "red flag" in result.lower()
