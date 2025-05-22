@@ -97,21 +97,49 @@ class PromptFactory:
         Builds a structured prompt to retrieve visa requirements.
         """
         return f"""
-               ou are a visa requirement assistant.
+               you are a visa requirement assistant.
 
-VisaQuery:
-  Country: {country}
-  Purpose: {purpose}
+        VisaQuery:
+        Country: {country}
+        Purpose: {purpose}
 
-Task: List the visa types available, requirements, processing time, and costs.
+        Task: List the visa types available, requirements, processing time, and costs.
 
-Respond in YAML format:
-visa_options:
-  - type: string
-    requirements:
-      - string
-    processing_time: string
-    cost: string
-    link: string
-summary: string
-"""
+        Respond in YAML format:
+        visa_options:
+        - type: string
+            requirements:
+            - string
+            processing_time: string
+            cost: string
+            link: string
+        summary: string
+        """
+    @staticmethod
+    def build_migration_advice_prompt(user_context: dict) -> str:
+        """
+        Builds an enhanced prompt for migration advice.
+        """
+        return f"""
+    You are an experienced migration advisor with deep knowledge of global visa pathways.
+
+    User details:
+    - Name: {user_context['name']}
+    - Goal: {user_context['goal']} (e.g. study, work, asylum, relocate)
+    - Country of Interest: {user_context['country']}
+    - Age: {user_context['age']}
+    - Budget: {user_context['budget']} USD
+
+    Your task is to:
+    1. Recommend the most realistic migration pathways based on their goal, budget, and age.
+    2. If 'work' is selected, suggest high-demand trades or job roles for {user_context['country']} that may qualify for visas.
+    3. Provide examples of real job websites or programs in {user_context['country']} they can explore.
+    4. Offer optional next steps, such as how to upskill or apply for scholarships, work permits, or asylum.
+    5. If possible, guide them on affordable or government-sponsored options.
+
+    Format your response with clear sections:
+    - 🌍 Summary of Suggested Path
+    - 🔧 High-Demand Skills or Job Roles
+    - 🔗 Useful Links
+    - 💡 Next Steps or Advice
+        """

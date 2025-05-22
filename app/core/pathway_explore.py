@@ -5,7 +5,7 @@ Module: pathway_explorer.py
 Purpose: Suggests realistic migration pathways (like trade jobs, study, or work) based on user context.
 """
 
-from utils.user_context import UserContext
+from app.utils.user_context import UserContext
 from app.services.llm_service import LLMService
 
 class PathwayExplorer:
@@ -17,7 +17,7 @@ class PathwayExplorer:
         Uses LLM to suggest viable migration routes based on user's goal, country, and budget.
         """
         prompt = self._build_prompt(user_context)
-        return self.llm.ask(prompt)
+        return self.llm.query_llm(prompt)
 
     def _build_prompt(self, context: UserContext) -> str:
         return f"""

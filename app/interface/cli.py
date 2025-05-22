@@ -1,9 +1,9 @@
 # cli.py - in remnant/interface
 
 from app.services.llm_service import LLMService
-from core.migration_advisor import MigrationAdvisor
-from core.pathway_explorer import PathwayExplorer
-from utils.user_context import UserContext
+from app.core.migration_advisor import MigrationAdvisor
+from app.core.pathway_explore import PathwayExplorer
+from app.utils.user_context import UserContext
 
 
 def collect_user_context():
@@ -27,6 +27,18 @@ def run_migration_advisor():
     advisor = MigrationAdvisor(LLMService())
     advice = advisor.advise(context)
     print(f"\n📌 Advice for {context.name}:\n{advice}")
+    # Save the advice to a text file
+    filename = f"{context.name.lower().replace(' ', '_')}_migration_advice.txt"
+    with open(filename, 'w', encoding='utf-8') as file:
+        file.write(f"Migration Advice for {context.name}\n")
+        file.write(f"Goal: {context.goal}\n")
+        file.write(f"Country: {context.country}\n")
+        file.write(f"Age: {context.age}\n")
+        file.write(f"Budget: ${context.budget}\n\n")
+        file.write("Advice:\n")
+        file.write(advice if isinstance(advice, str) else str(advice))
+
+    print(f"\n✅ Advice saved to: {filename}")
 
 
 def run_pathway_explorer():
