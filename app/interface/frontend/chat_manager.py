@@ -1,7 +1,7 @@
 # app/interface/streamlit/chat_manager.py
 
 from app.services.llm_service import LLMService
-from utils.user_context import UserContext
+from app.utils.user_context import UserContext
 
 class ChatManager:
     def __init__(self):
