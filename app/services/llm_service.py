@@ -7,7 +7,7 @@ Supports OpenRouter (LLaMA 3.3) and can easily be switched back to Ollama.
 import os
 from openai import OpenAI
 import dotenv 
-from app.utils.prompt_factory import PromptFactory
+
 
 dotenv.load_dotenv()  # Load environment variables from .env file
 class LLMService:

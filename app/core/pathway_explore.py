@@ -5,8 +5,8 @@ Module: pathway_explorer.py
 Purpose: Suggests realistic migration pathways (like trade jobs, study, or work) based on user context.
 """
 
-from app.utils.user_context import UserContext
-from app.services.llm_service import LLMService
+from utils.user_context import UserContext
+from services.llm_service import LLMService
 
 class PathwayExplorer:
     def __init__(self, llm_service: LLMService):

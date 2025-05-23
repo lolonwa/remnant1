@@ -19,5 +19,14 @@ class UserContext:
         self.age = age
         self.budget = budget
 
+    def to_dict(self):
+        return {
+            "name": self.name,
+            "goal": self.goal,
+            "country": self.country,
+            "age": self.age,
+            "budget": self.budget
+        }
+
     def __str__(self):
         return f"{self.name}, age {self.age}, wants to {self.goal} in {self.country} with budget {self.budget}"

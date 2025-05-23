@@ -1,9 +1,9 @@
 # cli.py - in remnant/interface
 
-from app.services.llm_service import LLMService
-from app.core.migration_advisor import MigrationAdvisor
-from app.core.pathway_explore import PathwayExplorer
-from app.utils.user_context import UserContext
+from services.llm_service import LLMService
+from core.migration_advisor import MigrationAdvisor
+from core.pathway_explore import PathwayExplorer
+from utils.user_context import UserContext
 
 
 def collect_user_context():
