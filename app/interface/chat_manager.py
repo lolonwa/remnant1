@@ -8,6 +8,10 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '.
 from app.services.llm_service import LLMService
 from app.utils.user_context import UserContext
 from app.utils.prompt_factory import PromptFactory
+from app.core.migration_advisor import MigrationAdvisor
+from app.core.scam_detection import ScamDetector
+from app.core.scholarship_finder import ScholarshipFinder
+from app.core.visa_info import VisaInfo
 
 class ChatManager:
     def __init__(self):
@@ -88,14 +92,22 @@ class ChatManager:
 
         # Add similar flows for scam_detector, scholarship_finder, visa_info as needed
         elif self.state["mode"] == "scam_detector":
-            # Here you would call your scam detection logic
-            return "Scam detection result: (implement logic here)"
+            # Only ask once, then analyze
+            detector = ScamDetector(self.llm)
+            result = detector.analyze_offer(user_input)
+            return f"Scam detection result:\n\n{result}"
+
         elif self.state["mode"] == "scholarship_finder":
-            # Here you would call your scholarship finder logic
-            return "Scholarship search result: (implement logic here)"
+            # Only ask once, then search
+            finder = ScholarshipFinder(self.llm)
+            result = finder.find_scholarships(user_input)
+            return f"Scholarship search result:\n\n{result}"
+
         elif self.state["mode"] == "visa_info":
-            # Here you would call your visa info logic
-            return "Visa info result: (implement logic here)"
+            # Only ask once, then provide info
+            visa = VisaInfo(self.llm)
+            result = visa.get_info(user_input)
+            return f"Visa info result:\n\n{result}"
 
         else:
             return "You can ask a follow-up question or type 'restart' to begin again."
@@ -108,6 +120,6 @@ class ChatManager:
             age=self.state["age"],
             budget=self.state["budget"],
         )
-        prompt = PromptFactory.build_migration_advice_prompt(context.to_dict())
-        response = self.llm.query_llm(prompt)
+        advisor = MigrationAdvisor(self.llm)
+        response = advisor.advise(context)
         return f"Here is your personalized advice:\n\n{response}"
