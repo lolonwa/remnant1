@@ -5,190 +5,112 @@ import os
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
-# app/interface/chat_manager.py
+# app/interface/streamlit/chat_manager.py
+
+# chat_manager.py - Handles smart conversation flow with minimal LLM cost
 
 from app.services.llm_service import LLMService
-from app.utils.user_context import UserContext
-from app.utils.prompt_factory import PromptFactory
 from app.core.migration_advisor import MigrationAdvisor
-from app.core.scam_detection import ScamDetector
-from app.core.scholarship_finder import ScholarshipFinder
-from app.core.visa_info import VisaInfoAdvisor
+from app.utils.user_context import UserContext
 
 class ChatManager:
     def __init__(self):
-        self.state = {
-            "mode": None,
-            "name": None,
-            "goal": None,
-            "country": None,
-            "age": None,
-            "budget": None,
-            "step": 0,
-            "scam_text": None
-        }
+        self.context = {}
         self.llm = LLMService()
 
+    def update_context(self, key, value):
+        """Stores user input like age, goal, country, budget, etc."""
+        self.context[key] = value
+
+    def is_ready_for_advice(self):
+        """Check if enough info has been collected to generate advice"""
+        required_fields = ['goal', 'age', 'budget']
+        return all(field in self.context for field in required_fields)
+
+    def ask_follow_up(self):
+        """If user doesn't know country, guide them based on goal"""
+        goal = self.context.get('goal')
+        if goal == "study":
+            return (
+                "You're interested in studying abroad. Do you want countries that allow you to bring family too?\n"
+                "Or should I list countries with the easiest student visa policies?"
+            )
+        elif goal == "work":
+            return (
+                "You're looking to work abroad. Do you have a skill or trade? Some countries have skill shortages.\n"
+                "Would you like me to list countries open to foreign workers with family?"
+            )
+        elif goal == "asylum":
+            return "Asylum can be complex. Are you fleeing conflict or persecution? I can list possible destinations and support options."
+
+        return "Can you clarify your goal?"
+
+    def get_advice(self):
+        """Send minimal but structured info to LLM"""
+        structured_prompt = {
+            "age": self.context.get("age"),
+            "budget_usd": self.context.get("budget"),
+            "goal": self.context.get("goal"),
+            "family": self.context.get("has_family", False),
+            "skill": self.context.get("skill"),
+            "country_preference": self.context.get("country"),
+        }
+
+        return self.llm.ask("Suggest best visa or migration options", structured_prompt)
+    def suggest_countries_for_goal(self):
+        goal = self.context.get("goal")
+        age = self.context.get("age")
+        budget = self.context.get("budget")
+
+        if not goal:
+            return "Please tell me your goal first (e.g., study, work, asylum)."
+
+        prompt = (
+            f"A user wants to migrate abroad. Their goal is '{goal}'."
+            f"{f' They are {age} years old.' if age else ''}"
+            f"{f' Their budget is ${budget}.' if budget else ''} "
+            "Which countries are best for this purpose, especially those with easier visa routes, lower rejection rates, or programs that include family?"
+            " List 3–5 countries with a short explanation each."
+        )
+
+        return self.llm.query_llm(prompt)   
+    def explore_country_options(self, country):
+        goal = self.context.get("goal", "migration")  # default fallback
+        prompt = (
+            f"A user wants to migrate to {country} with the goal of {goal}. "
+            f"What are the main visa pathways available? Please list them with short descriptions and typical requirements. "
+            "Highlight any options that support bringing family or have low barriers."
+        )
+        return self.llm.query_llm(prompt)
     def handle_user_input(self, user_input):
-        step = self.state["step"]
+        # Example: collect info and give migration advice if enough info is present
+        # This is a simple demo; you can expand logic as needed
+        # Let's assume user_input is a free-form question or info
 
-        if step == 0:
-            # 🔁 Switch tools mid-chat (optional shortcut)
-            tool_switch_phrases = {
-                "migration": "1",
-                "scam": "2",
-                "scholarship": "3",
-                "visa": "4"
-            }
-            for key, value in tool_switch_phrases.items():
-                if key in user_input.lower():
-                    self.reset()
-                    return self.handle_user_input(value)
+        # For demo, just echo the input
+        # return f"You said: {user_input}"
 
-            # Show menu
-            menu = (
-                "Hi, how can I help you?\n"
-                "Please choose an option:\n"
-                "1. Migration Advice\n"
-                "2. Scam Detector\n"
-                "3. Scholarship Finder\n"
-                "4. Visa Info"
-            )
-            self.state["step"] += 1  # ✅ Make sure we go to step 1
-            return menu
-
-        elif step == 1:
-            # Handle menu selection
-            options = {
-                "1": "migration_advice",
-                "2": "scam_detector",
-                "3": "scholarship_finder",
-                "4": "visa_info"
-            }
-            choice = user_input.strip()
-            if choice not in options:
-                return "Please enter a valid option number (1-4)."
-            self.state["mode"] = options[choice]
-            self.state["step"] += 1
-            if self.state["mode"] == "scam_detector":
-                return "🔁 Switching to Scam Detector! Please paste the text you want to analyze for scams."
-            return "Let's get started. What is your name?"
-
-        # Step 2 — name or scam text
-        elif step == 2 and self.state["mode"] != "scam_detector":
-            self.state["name"] = user_input
-            self.state["step"] += 1
-            return f"Hi {user_input}! What is your migration goal? (study / work / asylum)"
-
-        elif step == 2 and self.state["mode"] == "scam_detector":
-            self.state["scam_text"] = user_input
-            return self.analyze_scam(user_input)
-
-        # Step 3 — goal
-        elif step == 3:
-            self.state["goal"] = user_input.lower()
-            self.state["step"] += 1
-            return f"Great. Which country are you considering for {self.state['goal']}?"
-
-        # Step 4 — country
-        elif step == 4:
-            self.state["country"] = user_input
-            self.state["step"] += 1
+        # Example: collect context (very basic, you should improve this)
+        if "goal" not in self.context:
+            self.context["goal"] = user_input
             return "What is your age?"
-
-        # Step 5 — age
-        elif step == 5:
-            self.state["age"] = user_input
-            self.state["step"] += 1
+        elif "age" not in self.context:
+            self.context["age"] = user_input
             return "What is your budget in USD?"
-
-        # Step 6 — budget and final processing
-        elif step == 6:
-            self.state["budget"] = user_input
-            self.state["step"] += 1
-            return self._handle_selected_mode()
-
-        else:
-            return "You can ask a follow-up question or type 'restart' to begin again."
-
-
-    def analyze_scam(self, text):
-        red_flags = []
-        advice = ""
-
-        checks = {
-            "Promises a huge amount of money for free": ["you've been selected", "congratulations", "you won", "million dollars"],
-            "Asks for money upfront": ["processing fee", "send money", "wire transfer", "bank account"],
-            "Asks for personal information": ["full name", "home address", "phone number", "ID number"],
-            "Tries to create urgency": ["expires in", "act now", "urgent", "24 hours"],
-            "Uses suspicious email or contact info": ["@", ".com", "reply now"],
-            "Vague or no mention of real organization": ["lottery", "prize", "winner", "opportunity"]
-        }
-
-        total_checks = 0
-        failed_checks = 0
-
-        for reason, keywords in checks.items():
-            total_checks += 1
-            if any(word in text.lower() for word in keywords):
-                red_flags.append(reason)
-                failed_checks += 1
-
-        percentage = int((failed_checks / total_checks) * 100)
-        is_scam = percentage >= 50
-
-        if is_scam:
-            advice = (
-                "⚠️ This is likely a scam! Never share personal info or send money to unknown people. "
-                "Real organizations don’t ask for fees to claim prizes. 🚫"
-            )
-        else:
-            advice = (
-                "✅ This doesn’t seem like a scam, but always double-check. Stay safe online! 🌐"
-            )
-
-        return (
-            f"🔍 Scam Detection Report:\n\n"
-            f"🎯 Scam Likelihood: {percentage}%\n"
-            f"✅ Is this a scam? {'YES' if is_scam else 'NO'}\n\n"
-            f"🚨 Red Flags:\n" + '\n'.join(f"- {flag}" for flag in red_flags) + "\n\n"
-            f"💡 Advice:\n{advice}"
-        )
-
-    def _handle_selected_mode(self):
-        context = UserContext(
-            name=self.state["name"],
-            goal=self.state["goal"],
-            country=self.state["country"],
-            age=self.state["age"],
-            budget=self.state["budget"],
-        )
-
-        if self.state["mode"] == "migration_advice":
+        elif "budget" not in self.context:
+            self.context["budget"] = user_input
+            # Now we have enough info, call migration advisor
             advisor = MigrationAdvisor(self.llm)
-            response = advisor.advise(context)
-            return f"Here is your personalized migration advice:\n\n{response}"
-        elif self.state["mode"] == "scam_detector":
-            return self.analyze_scam(self.state["scam_text"])
-        elif self.state["mode"] == "scholarship_finder":
-            finder = ScholarshipFinder(self.llm)
-            result = finder.find_scholarships(str(context.__dict__))
-            return f"Scholarship search result (based on your info):\n\n{result}"
-        elif self.state["mode"] == "visa_info":
-            visa = VisaInfoAdvisor(self.llm)
-            result = visa.get_info(str(context.__dict__))
-            return f"Visa info result (based on your info):\n\n{result}"
+            user_ctx = UserContext(
+                name="User",
+                goal=self.context["goal"],
+                country=self.context.get("country", ""),
+                age=self.context["age"],
+                budget=self.context["budget"]
+            )
+            advice = advisor.advise(user_ctx)
+            self.context.clear()  # Reset for next session
+            return advice
         else:
-            return "Unknown mode."
+            return "Thank you! Ask another migration question or restart."
 
-    def reset(self):
-        self.state = {
-            "mode": None,
-            "name": None,
-            "goal": None,
-            "country": None,
-            "age": None,
-            "budget": None,
-            "step": 0,
-            "scam_text": None
-        }

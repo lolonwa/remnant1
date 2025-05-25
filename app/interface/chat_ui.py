@@ -1,51 +1,49 @@
+"""
+Streamlit chatbot UI for the Remnant Migration Assistant
+"""
+
 import streamlit as st
 from chat_manager import ChatManager
 
-# Set page config
-st.set_page_config(page_title="Remnant Chatbot", page_icon="🧭")
+# Initialize ChatManager once
+if "chat" not in st.session_state:
+    st.session_state.chat = ChatManager()
+
+chat = st.session_state.chat
+
+# Session state to control ongoing chat
+if "chat_active" not in st.session_state:
+    st.session_state.chat_active = True
 
 st.title("🧭 Remnant Migration Assistant")
+st.caption("Ask me anything about migrating abroad, visas, scholarships, scams, or country options.")
 
-# Session state initialization
-if "chat_history" not in st.session_state:
-    st.session_state.chat_history = []
-if "manager" not in st.session_state:
-    st.session_state.manager = ChatManager()
-if "menu_selected" not in st.session_state:
-    st.session_state.menu_selected = False
+# Stop conversation button
+if st.button("🛑 Stop Conversation"):
+    st.session_state.chat_active = False
+    st.success("Conversation ended. You can start again anytime.")
 
-# 💥 Add Return to Menu Button
-if st.button("🔁 Return to Menu"):
-    st.session_state.chat_history = []
-    st.session_state.manager = ChatManager()
-    st.session_state.menu_selected = False
-    st.rerun()
+# Restart conversation button (only if stopped)
+if not st.session_state.chat_active:
+    if st.button("🔄 Restart Conversation"):
+        st.session_state.chat_active = True
+        chat.context.clear()  # Reset memory if supported
+        st.success("New conversation started!")
 
-# Show menu if not selected yet
-if not st.session_state.menu_selected:
-    options = [
-        "Migration Advice",
-        "Scam Detector",
-        "Scholarship Finder",
-        "Visa Info"
-    ]
-    choice = st.selectbox("Please choose an option:", options)
-    if st.button("Continue"):
-        st.session_state.chat_history.append(("You", choice))
-        response = st.session_state.manager.handle_user_input(str(options.index(choice) + 1))
-        st.session_state.chat_history.append(("Remnant", response))
-        st.session_state.menu_selected = True
-        st.rerun()
+# Only show chat if conversation is active
+if st.session_state.chat_active:
+    user_input = st.chat_input("Ask me anything...")
 
-# Chat Input and History
-if st.session_state.menu_selected:
-    user_input = st.chat_input("Type your answer here...")
     if user_input:
-        st.session_state.chat_history.append(("You", user_input))
-        response = st.session_state.manager.handle_user_input(user_input)
-        st.session_state.chat_history.append(("Remnant", response))
+        # Display user's message
+        with st.chat_message("user"):
+            st.markdown(user_input)
 
-# Display chat history
-for sender, message in st.session_state.chat_history:
-    with st.chat_message(sender):
-        st.markdown(message)
+        # Get LLM response
+        response = chat.handle_user_input(user_input)
+
+        # Display assistant's message
+        with st.chat_message("assistant"):
+            st.markdown(response)
+else:
+    st.info("🛑 Chat is stopped. Use 'Restart' to begin a new conversation.")
