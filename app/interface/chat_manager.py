@@ -86,30 +86,58 @@ class ChatManager:
         return self.llm.query_llm(prompt)
     def handle_user_input(self, user_input):
         lowered = user_input.lower()
-        # Detect scholarship intent
-        if "scholarship" in lowered:
-            # Ask for country if missing
-            if not self.context.get("country"):
-                self.context["country"] = user_input if self.context.get("goal") else ""
+
+        # Step 1: Ask for mode if not set
+        if "mode" not in self.context:
+            options = ["migration", "scholarship", "scam", "visa"]
+            # Detect mode from user input
+            for opt in options:
+                if opt in lowered:
+                    self.context["mode"] = opt
+                    break
+            if "mode" not in self.context:
+                return (
+                    "How can I help you today? Please choose one:\n"
+                    "- Migration advice\n"
+                    "- Scholarship info\n"
+                    "- Scam detection\n"
+                    "- Visa info"
+                )
+            # After mode is set, prompt for next info
+            if self.context["mode"] == "migration":
+                return "Great! What is your migration goal? (study, work, asylum)"
+            elif self.context["mode"] == "scholarship":
                 return "Which country are you interested in for scholarships?"
-            # Ask for level if missing
-            if not self.context.get("level"):
-                self.context["level"] = user_input if self.context.get("country") else ""
+            elif self.context["mode"] == "scam":
+                return "Paste the message or offer you'd like me to check for scams."
+            elif self.context["mode"] == "visa":
+                return "Which country's visa information do you need?"
+
+        # Step 2: Route to the correct logic
+        mode = self.context["mode"]
+
+        if mode == "scholarship":
+            if not self.context.get("country"):
+                self.context["country"] = user_input
                 return "What level of study? (undergraduate, masters, phd)"
-            # Now we have both, call the finder
-            finder = ScholarshipFinder(self.llm)
-            result = finder.find(self.context["country"], self.context["level"])
+            if not self.context.get("level"):
+                self.context["level"] = user_input
+                finder = ScholarshipFinder(self.llm)
+                result = finder.find(self.context["country"], self.context["level"])
+                self.context.clear()
+                return result
+
+        elif mode == "scam":
+            detector = ScamDetector(self.llm)
+            result = detector.analyze_offer(user_input)
             self.context.clear()
             return result
 
-        # Detect scam intent
-        scam_keywords = ["scam", "fraud", "fake", "phishing"]
-        if any(word in lowered for word in scam_keywords):
-            detector = ScamDetector(self.llm)
-            result = detector.analyze_offer(user_input)
-            return result
+        elif mode == "visa":
+            # Implement visa info logic here
+            return "Visa info feature coming soon!"
 
-        # Migration advice flow (default)
+        # Default: migration advice
         if "goal" not in self.context:
             self.context["goal"] = user_input
             return "What is your age?"
@@ -130,5 +158,5 @@ class ChatManager:
             self.context.clear()
             return advice
         else:
-            return "Thank you! Ask another migration question or restart."
+            return "Thank you! Ask another question or restart."
 
