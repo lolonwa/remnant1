@@ -4,40 +4,46 @@ Streamlit chatbot UI for the Remnant Migration Assistant
 
 import streamlit as st
 from chat_manager import ChatManager
-import streamlit as st
 
+# Initialize ChatManager once
+if "chat" not in st.session_state:
+    st.session_state.chat = ChatManager()
 
-# Initialize chat state
-if "chat_router" not in st.session_state:
-    st.session_state.chat_router = ChatManager()
-    st.session_state.messages = []
+chat = st.session_state.chat
 
-# Page title
-st.set_page_config(page_title="Remnant Migration Chatbot", page_icon="🛂")
-st.title("🛂 Remnant Migration Chatbot")
-st.write("Ask me anything about moving abroad, visas, scholarships, or avoiding scams!")
+# Session state to control ongoing chat
+if "chat_active" not in st.session_state:
+    st.session_state.chat_active = True
 
-# Display conversation
-for message in st.session_state.messages:
-    with st.chat_message(message["role"]):
-        st.markdown(message["content"])
+st.title("🧭 Remnant Migration Assistant")
+st.caption("Ask me anything about migrating abroad, visas, scholarships, scams, or country options.")
 
-# User input
-user_input = st.chat_input("Type your message...")
+# Stop conversation button
+if st.button("🛑 Stop Conversation"):
+    st.session_state.chat_active = False
+    st.success("Conversation ended. You can start again anytime.")
 
-if user_input:
-    # Show user's message
-    st.chat_message("user").markdown(user_input)
-    st.session_state.messages.append({"role": "user", "content": user_input})
+# Restart conversation button (only if stopped)
+if not st.session_state.chat_active:
+    if st.button("🔄 Restart Conversation"):
+        st.session_state.chat_active = True
+        chat.context.clear()  # Reset memory if supported
+        st.success("New conversation started!")
 
-    # Get response from ChatRouter
-    response = st.session_state.chat_router.handle_user_input(user_input)
+# Only show chat if conversation is active
+if st.session_state.chat_active:
+    user_input = st.chat_input("Ask me anything...")
 
-    # Show bot reply
-    st.chat_message("assistant").markdown(response)
-    st.session_state.messages.append({"role": "assistant", "content": response})
+    if user_input:
+        # Display user's message
+        with st.chat_message("user"):
+            st.markdown(user_input)
 
-# Optional: Add a "Stop" button
-if st.button("❌ End Conversation"):
-    st.session_state.clear()
-    st.rerun()
+        # Get LLM response
+        response = chat.handle_user_input(user_input)
+
+        # Display assistant's message
+        with st.chat_message("assistant"):
+            st.markdown(response)
+else:
+    st.info("🛑 Chat is stopped. Use 'Restart' to begin a new conversation.")
