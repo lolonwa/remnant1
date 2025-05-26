@@ -12,6 +12,8 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '.
 from app.services.llm_service import LLMService
 from app.core.migration_advisor import MigrationAdvisor
 from app.utils.user_context import UserContext
+from app.core.scam_detection import ScamDetector
+from app.core.scholarship_finder import ScholarshipFinder
 
 class ChatManager:
     def __init__(self):
@@ -83,14 +85,21 @@ class ChatManager:
         )
         return self.llm.query_llm(prompt)
     def handle_user_input(self, user_input):
-        # Example: collect info and give migration advice if enough info is present
-        # This is a simple demo; you can expand logic as needed
-        # Let's assume user_input is a free-form question or info
+        lowered = user_input.lower()
+        # Detect scholarship intent
+        if "scholarship" in lowered:
+            finder = ScholarshipFinder(self.llm)
+            result = finder.find_scholarships(user_input)
+            return result
 
-        # For demo, just echo the input
-        # return f"You said: {user_input}"
+        # Detect scam intent
+        scam_keywords = ["scam", "fraud", "fake", "phishing"]
+        if any(word in lowered for word in scam_keywords):
+            detector = ScamDetector(self.llm)
+            result = detector.analyze_offer(user_input)
+            return result
 
-        # Example: collect context (very basic, you should improve this)
+        # Migration advice flow (default)
         if "goal" not in self.context:
             self.context["goal"] = user_input
             return "What is your age?"
@@ -99,7 +108,6 @@ class ChatManager:
             return "What is your budget in USD?"
         elif "budget" not in self.context:
             self.context["budget"] = user_input
-            # Now we have enough info, call migration advisor
             advisor = MigrationAdvisor(self.llm)
             user_ctx = UserContext(
                 name="User",
@@ -109,7 +117,7 @@ class ChatManager:
                 budget=self.context["budget"]
             )
             advice = advisor.advise(user_ctx)
-            self.context.clear()  # Reset for next session
+            self.context.clear()
             return advice
         else:
             return "Thank you! Ask another migration question or restart."
