@@ -88,10 +88,18 @@ class ChatManager:
         lowered = user_input.lower()
         # Detect scholarship intent
         if "scholarship" in lowered:
+            # Ask for country if missing
+            if not self.context.get("country"):
+                self.context["country"] = user_input if self.context.get("goal") else ""
+                return "Which country are you interested in for scholarships?"
+            # Ask for level if missing
+            if not self.context.get("level"):
+                self.context["level"] = user_input if self.context.get("country") else ""
+                return "What level of study? (undergraduate, masters, phd)"
+            # Now we have both, call the finder
             finder = ScholarshipFinder(self.llm)
-            country = self.context.get("country", "")
-            level = self.context.get("level", "")
-            result = finder.find(country, level)
+            result = finder.find(self.context["country"], self.context["level"])
+            self.context.clear()
             return result
 
         # Detect scam intent
