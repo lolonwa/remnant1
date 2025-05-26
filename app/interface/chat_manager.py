@@ -89,7 +89,9 @@ class ChatManager:
         # Detect scholarship intent
         if "scholarship" in lowered:
             finder = ScholarshipFinder(self.llm)
-            result = finder.find(user_input)
+            country = self.context.get("country", "")
+            level = self.context.get("level", "")
+            result = finder.find(country, level)
             return result
 
         # Detect scam intent
