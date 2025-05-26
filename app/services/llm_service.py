@@ -19,7 +19,7 @@ class LLMService:
     def __init__(self):
         self.client = OpenAI(
             base_url="https://openrouter.ai/api/v1",
-            api_key=os.getenv("OPENROUTER_API_KEY")
+            api_key=os.getenv("openrouter_api_key")
         )
         self.model = "meta-llama/llama-3.3-8b-instruct:free"
 
