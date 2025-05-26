@@ -31,7 +31,7 @@ if user_input:
     st.session_state.messages.append({"role": "user", "content": user_input})
 
     # Get response from ChatRouter
-    response = st.session_state.chat_router.handle_input(user_input)
+    response = st.session_state.chat_router.handle_user_input(user_input)
 
     # Show bot reply
     st.chat_message("assistant").markdown(response)
