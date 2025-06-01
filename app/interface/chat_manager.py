@@ -90,12 +90,15 @@ class ChatManager:
         # Step 1: Ask for mode if not set
         if "mode" not in self.context:
             options = ["migration", "scholarship", "scam", "visa"]
-            # Detect mode from user input
             for opt in options:
                 if opt in lowered:
                     self.context["mode"] = opt
                     break
             if "mode" not in self.context:
+                # Try to infer mode if user mentions a country or goal
+                if "country" in lowered or "new zealand" in lowered or "work" in lowered or "study" in lowered:
+                    self.context["mode"] = "migration"
+                    return "Great! What is your main migration goal? (study, work, asylum)"
                 return (
                     "How can I help you today? Please choose one:\n"
                     "- Migration advice\n"
@@ -144,6 +147,9 @@ class ChatManager:
         # Default: migration advice
         if "goal" not in self.context:
             self.context["goal"] = user_input
+            return "Which country are you considering for migration?"
+        elif "country" not in self.context:
+            self.context["country"] = user_input
             return "What is your age?"
         elif "age" not in self.context:
             self.context["age"] = user_input
@@ -154,7 +160,7 @@ class ChatManager:
             user_ctx = UserContext(
                 name="User",
                 goal=self.context["goal"],
-                country=self.context.get("country", ""),
+                country=self.context["country"],
                 age=self.context["age"],
                 budget=self.context["budget"]
             )
