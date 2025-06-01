@@ -2,8 +2,8 @@
 
 import sys
 import os
-from app.core.trusted_sources import TrustedSourceLoader
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
+from app.core.trusted_sources import TrustedSourceLoader
 
 # app/interface/streamlit/chat_manager.py
 

@@ -3,7 +3,7 @@
 import os
 import yaml
 from app.models.source_item import SourceItem  # if you split it out
-from ....trusted_sources.trusted_sources.new_zealand import *
+
 class TrustedSourceLoader:
     @staticmethod
     def load(country: str, category: str):
