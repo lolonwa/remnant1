@@ -2,7 +2,7 @@
 
 import sys
 import os
-
+from app.core.trusted_sources import TrustedSourceLoader
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
 # app/interface/streamlit/chat_manager.py
@@ -105,7 +105,11 @@ class ChatManager:
                 )
             # After mode is set, prompt for next info
             if self.context["mode"] == "migration":
-                return "Great! What is your migration goal? (study, work, asylum)"
+                return (
+    "What is your main migration goal?\n"
+    "1. Study\n2. Work\n3. Asylum\n\n"
+    "You can type the number or the word."
+)
             elif self.context["mode"] == "scholarship":
                 return "Which country are you interested in for scholarships?"
             elif self.context["mode"] == "scam":
@@ -159,4 +163,15 @@ class ChatManager:
             return advice
         else:
             return "Thank you! Ask another question or restart."
-
+    def recommend_links(self):
+        country = self.context.get("country", "").lower().replace(" ", "_")
+        goal = self.context.get("goal", "").lower()
+        sources = TrustedSourceLoader.load(country, goal)  # You’ll write this next
+        if not sources:
+            return "I couldn’t find trusted sources for that goal and country yet. Would you like me to search online instead?"
+        response = "Here are some helpful links:\n"
+        for item in sources:
+            response += f"- **{item.name}**: {item.description or 'No description'}\n"
+            for url in item.urls:
+                response += f"  🔗 {url}\n"
+        return response

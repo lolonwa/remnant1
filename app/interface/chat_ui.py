@@ -35,14 +35,11 @@ if st.session_state.chat_active:
     user_input = st.chat_input("Ask me anything...")
 
     if user_input:
-        # Display user's message
         with st.chat_message("user"):
             st.markdown(user_input)
 
-        # Get LLM response
         response = chat.handle_user_input(user_input)
 
-        # Display assistant's message
         with st.chat_message("assistant"):
             st.markdown(response)
 else:
