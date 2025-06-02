@@ -14,7 +14,7 @@ from app.core.migration_advisor import MigrationAdvisor
 from app.utils.user_context import UserContext
 from app.core.scam_detection import ScamDetector
 from app.core.scholarship_finder import ScholarshipFinder
-
+from app.core.visa_info import VisaInfoAdvisor
 class ChatManager:
     def __init__(self):
         self.context = {}
@@ -141,8 +141,15 @@ class ChatManager:
             return result
 
         elif mode == "visa":
-            # Implement visa info logic here
-            return "Visa info feature coming soon!"
+            if not self.context.get("country"):
+                self.context["country"] = user_input
+                return "What type of visa are you interested in? (e.g., tourist, student, work, family, etc.)"
+            if not self.context.get("visa_type"):
+                self.context["visa_type"] = user_input
+                advisor = VisaInfoAdvisor(self.llm)
+                result = advisor.get_info(self.context["country"], self.context["visa_type"])
+                self.context.clear()
+                return result
 
         # Default: migration advice
         if "goal" not in self.context:

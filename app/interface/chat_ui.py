@@ -5,6 +5,9 @@ Streamlit chatbot UI for the Remnant Migration Assistant
 import streamlit as st
 from chat_manager import ChatManager
 
+# Set page config
+st.set_page_config(page_title="Remnant Migration Assistant", page_icon="🌏")
+
 # Initialize ChatManager once
 if "chat" not in st.session_state:
     st.session_state.chat = ChatManager()
@@ -35,11 +38,14 @@ if st.session_state.chat_active:
     user_input = st.chat_input("Ask me anything...")
 
     if user_input:
+        # Display user's message
         with st.chat_message("user"):
             st.markdown(user_input)
 
+        # Get LLM response
         response = chat.handle_user_input(user_input)
 
+        # Display assistant's message
         with st.chat_message("assistant"):
             st.markdown(response)
 else:
