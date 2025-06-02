@@ -6,11 +6,16 @@ import streamlit as st
 from chat_manager import ChatManager
 from auth import login_screen  # Import your login function
 
-# Show login screen first
+# Show login button and login screen
 if "user" not in st.session_state:
-    logged_in = login_screen()
-    if not logged_in:
-        st.stop()  # Stop here if not logged in
+    st.title("🧭 Remnant Migration Assistant")
+    st.caption("Please log in to continue.")
+    if st.button("Login"):
+        logged_in = login_screen()
+        if logged_in:
+            st.session_state["user"] = True  # Or set user info if available
+            st.experimental_rerun()
+    st.stop()  # Stop here if not logged in
 
 # Initialize ChatManager once
 if "chat" not in st.session_state:
