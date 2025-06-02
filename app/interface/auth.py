@@ -1,6 +1,8 @@
 import os
 from dotenv import load_dotenv
-import pyrebase  # or firebase_admin if using Admin SDK
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+import pyrebase4 as pyrebase
 import streamlit as st
 load_dotenv()  # Load variables from .env
 
