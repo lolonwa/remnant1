@@ -5,17 +5,63 @@ Streamlit chatbot UI for the Remnant Migration Assistant
 import streamlit as st
 from chat_manager import ChatManager
 from auth import login_screen
+from firebase_verify import verify_firebase_token
 
-# Set page config
 st.set_page_config(page_title="Remnant Migration Assistant", page_icon="🌏")
 
-# Show login screen first
+# --- Authentication ---
 if "user" not in st.session_state:
-    logged_in = login_screen()
-    if not logged_in:
+    login_method = st.radio(
+        "Choose login method:",
+        ["Email/Password", "Social (Google/Yahoo/Facebook/Phone)"]
+    )
+    if login_method == "Email/Password":
+        st.info("Use your email and password to log in or sign up below.")
+        logged_in = login_screen()
+        if not logged_in:
+            st.stop()
+    else:
+        st.caption("Paste your Firebase ID token from Google/Yahoo/Facebook/Phone login below.")
+        st.info("Don't have a token? Use the Email/Password option above to log in or sign up directly.")
+
+        # --- Google Sign-In Button (shows token in alert) ---
+        GOOGLE_CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com"  # Replace with your client ID
+        st.markdown(f"""
+            <div id="g_id_onload"
+                 data-client_id="{GOOGLE_CLIENT_ID}"
+                 data-context="signin"
+                 data-ux_mode="popup"
+                 data-callback="handleCredentialResponse"
+                 data-auto_prompt="false">
+            </div>
+            <div class="g_id_signin"
+                 data-type="standard"
+                 data-shape="rectangular"
+                 data-theme="outline"
+                 data-text="sign_in_with"
+                 data-size="large"
+                 data-logo_alignment="left">
+            </div>
+            <script src="https://accounts.google.com/gsi/client" async defer></script>
+            <script>
+              function handleCredentialResponse(response) {{
+                alert("Google ID Token: " + response.credential);
+              }}
+            </script>
+        """, unsafe_allow_html=True)
+
+        id_token = st.text_input("Firebase ID Token")
+        if st.button("Login with Token"):
+            user_info = verify_firebase_token(id_token)
+            if user_info:
+                st.session_state["user"] = user_info
+                st.success(f"Login successful! Welcome {user_info.get('email', 'user')}")
+                st.experimental_rerun()
+            else:
+                st.error("Invalid or expired token. Please try again.")
         st.stop()  # Stop here if not logged in
 
-# Initialize ChatManager once
+# --- Chat UI ---
 if "chat" not in st.session_state:
     st.session_state.chat = ChatManager()
 
