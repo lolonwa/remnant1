@@ -2,8 +2,9 @@ import os
 from dotenv import load_dotenv
 import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-import pyrebase as pyrebase
+import pyrebase
 import streamlit as st
+
 load_dotenv()  # Load variables from .env
 
 firebase_config = {
