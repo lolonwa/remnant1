@@ -4,9 +4,16 @@ Streamlit chatbot UI for the Remnant Migration Assistant
 
 import streamlit as st
 from chat_manager import ChatManager
+from auth import login_screen
 
 # Set page config
 st.set_page_config(page_title="Remnant Migration Assistant", page_icon="🌏")
+
+# Show login screen first
+if "user" not in st.session_state:
+    logged_in = login_screen()
+    if not logged_in:
+        st.stop()  # Stop here if not logged in
 
 # Initialize ChatManager once
 if "chat" not in st.session_state:
