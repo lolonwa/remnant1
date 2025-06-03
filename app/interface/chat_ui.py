@@ -33,7 +33,7 @@ if "user" not in st.session_state:
         st.caption("Paste your Firebase ID token from Google/Yahoo/Facebook/Phone login below.")
         st.info(
             "Don't have a token? "
-            "Open the [Get Firebase ID Token page](get_firebase_token.html), sign in with Google, "
+            "Open the [Get Firebase ID Token page](http://localhost:8080/get_firebase_token.html), sign in with Google, "
             "copy the token (it will be a long string with dots), and paste it here. "
             "Do NOT paste your client ID. Or use the Email/Password option above."
         )
@@ -47,7 +47,7 @@ if "user" not in st.session_state:
                 if user_info:
                     st.session_state["user"] = user_info
                     st.success(f"Login successful! Welcome {user_info.get('email', 'user')}")
-                    st.experimental_rerun()
+                    st.rerun()
                 else:
                     st.error("Invalid or expired token. Please try again.")
         st.stop()  # Stop here if not logged in
