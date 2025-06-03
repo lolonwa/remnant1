@@ -22,7 +22,11 @@ if "user" not in st.session_state:
             st.stop()
     else:
         st.caption("Paste your Firebase ID token from Google/Yahoo/Facebook/Phone login below.")
-        st.info("Don't have a token? Use the Email/Password option above to log in or sign up directly.")
+        st.info(
+            "Don't have a token? Click the Google Sign-In button below, log in, "
+            "copy the token from the popup, and paste it here. "
+            "Or use the Email/Password option above."
+        )
 
         # --- Google Sign-In Button (shows token in alert) ---
         GOOGLE_CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com"  # Replace with your client ID
