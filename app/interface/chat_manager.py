@@ -172,8 +172,10 @@ class ChatManager:
                 budget=self.context["budget"]
             )
             advice = advisor.advise(user_ctx)
+            # Fetch real links
+            links = self.recommend_links()
             self.context.clear()
-            return advice
+            return f"{advice}\n\n{links}"
         else:
             return "Thank you! Ask another question or restart."
     def recommend_links(self):
