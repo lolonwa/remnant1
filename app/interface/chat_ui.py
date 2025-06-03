@@ -33,7 +33,7 @@ if "user" not in st.session_state:
         st.caption("Paste your Firebase ID token from Google/Yahoo/Facebook/Phone login below.")
         st.info(
             "Don't have a token? "
-            "Open the [Get Firebase ID Token page](http://localhost:8080/get_firebase_token.html), sign in with Google, "
+            "Open the [Get Firebase ID Token page](https://github.com/lolonwa/remnant1/blob/main/app/interface/get_firebase_token.html#L2), sign in with Google, "
             "copy the token (it will be a long string with dots), and paste it here. "
             "Do NOT paste your client ID. Or use the Email/Password option above."
         )
