@@ -28,36 +28,36 @@ if "user" not in st.session_state:
     else:
         st.caption("Paste your Firebase ID token from Google/Yahoo/Facebook/Phone login below.")
         st.info(
-            "Don't have a token? Click the Google Sign-In button below, log in, "
-            "copy the token from the popup, and paste it here. "
+            "Don't have a token? Use the one below,  and paste it here. "
             "Or use the Email/Password option above."
         )
 
         # --- Google Sign-In Button (shows token in alert) ---
         GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
+        st.write("Google Client ID:", GOOGLE_CLIENT_ID)  # Add this for debugging
         st.markdown(f"""
-            <div id="g_id_onload"
-                 data-client_id="{GOOGLE_CLIENT_ID}"
-                 data-context="signin"
-                 data-ux_mode="popup"
-                 data-callback="handleCredentialResponse"
-                 data-auto_prompt="false">
-            </div>
-            <div class="g_id_signin"
-                 data-type="standard"
-                 data-shape="rectangular"
-                 data-theme="outline"
-                 data-text="sign_in_with"
-                 data-size="large"
-                 data-logo_alignment="left">
-            </div>
-            <script src="https://accounts.google.com/gsi/client" async defer></script>
-            <script>
-              function handleCredentialResponse(response) {{
-                alert("Google ID Token: " + response.credential);
-              }}
-            </script>
-        """, unsafe_allow_html=True)
+    <div id="g_id_onload"
+         data-client_id="{GOOGLE_CLIENT_ID}"
+         data-context="signin"
+         data-ux_mode="popup"
+         data-callback="handleCredentialResponse"
+         data-auto_prompt="false">
+    </div>
+    <div class="g_id_signin"
+         data-type="standard"
+         data-shape="rectangular"
+         data-theme="outline"
+         data-text="sign_in_with"
+         data-size="large"
+         data-logo_alignment="left">
+    </div>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script>
+      function handleCredentialResponse(response) {{
+        alert("Google ID Token: " + response.credential);
+      }}
+    </script>
+""", unsafe_allow_html=True)
 
         id_token = st.text_input("Firebase ID Token")
         if st.button("Login with Token"):
