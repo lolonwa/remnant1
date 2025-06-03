@@ -14,6 +14,10 @@ st.set_page_config(page_title="Remnant Migration Assistant", page_icon="🌏")
 # --- Load environment variables ---
 load_dotenv()
 
+def is_valid_jwt(token):
+    # A JWT has three segments separated by dots
+    return isinstance(token, str) and token.count('.') == 2
+
 # --- Authentication ---
 if "user" not in st.session_state:
     login_method = st.radio(
@@ -28,46 +32,24 @@ if "user" not in st.session_state:
     else:
         st.caption("Paste your Firebase ID token from Google/Yahoo/Facebook/Phone login below.")
         st.info(
-            "Don't have a token? Use the one below,  and paste it here. "
-            "Or use the Email/Password option above."
+            "Don't have a token? "
+            "Open the [Get Firebase ID Token page](get_firebase_token.html), sign in with Google, "
+            "copy the token (it will be a long string with dots), and paste it here. "
+            "Do NOT paste your client ID. Or use the Email/Password option above."
         )
-
-        # --- Google Sign-In Button (shows token in alert) ---
-        GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
-        st.write("Google Client ID:", GOOGLE_CLIENT_ID)  # Add this for debugging
-        st.markdown(f"""
-    <div id="g_id_onload"
-         data-client_id="{GOOGLE_CLIENT_ID}"
-         data-context="signin"
-         data-ux_mode="popup"
-         data-callback="handleCredentialResponse"
-         data-auto_prompt="false">
-    </div>
-    <div class="g_id_signin"
-         data-type="standard"
-         data-shape="rectangular"
-         data-theme="outline"
-         data-text="sign_in_with"
-         data-size="large"
-         data-logo_alignment="left">
-    </div>
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
-    <script>
-      function handleCredentialResponse(response) {{
-        alert("Google ID Token: " + response.credential);
-      }}
-    </script>
-""", unsafe_allow_html=True)
 
         id_token = st.text_input("Firebase ID Token")
         if st.button("Login with Token"):
-            user_info = verify_firebase_token(id_token)
-            if user_info:
-                st.session_state["user"] = user_info
-                st.success(f"Login successful! Welcome {user_info.get('email', 'user')}")
-                st.experimental_rerun()
+            if not is_valid_jwt(id_token):
+                st.error("Please paste a valid Firebase ID Token (not your client ID). It should be a long string with two dots.")
             else:
-                st.error("Invalid or expired token. Please try again.")
+                user_info = verify_firebase_token(id_token)
+                if user_info:
+                    st.session_state["user"] = user_info
+                    st.success(f"Login successful! Welcome {user_info.get('email', 'user')}")
+                    st.experimental_rerun()
+                else:
+                    st.error("Invalid or expired token. Please try again.")
         st.stop()  # Stop here if not logged in
 
 # --- Chat UI ---
