@@ -6,8 +6,13 @@ import streamlit as st
 from chat_manager import ChatManager
 from auth import login_screen
 from firebase_verify import verify_firebase_token
+import os
+from dotenv import load_dotenv
 
 st.set_page_config(page_title="Remnant Migration Assistant", page_icon="🌏")
+
+# --- Load environment variables ---
+load_dotenv()
 
 # --- Authentication ---
 if "user" not in st.session_state:
@@ -29,7 +34,7 @@ if "user" not in st.session_state:
         )
 
         # --- Google Sign-In Button (shows token in alert) ---
-        GOOGLE_CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com"  # Replace with your client ID
+        GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
         st.markdown(f"""
             <div id="g_id_onload"
                  data-client_id="{GOOGLE_CLIENT_ID}"
