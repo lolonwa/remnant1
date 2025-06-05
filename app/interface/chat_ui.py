@@ -36,11 +36,12 @@ if "user" not in st.session_state:
             "Don't have a token? "
             "Open the [Get Firebase ID Token page](http://localhost:8083/get_firebase_token.html), sign in with Google, "
             "copy the token (it will be a long string with dots), and paste it here. "
-            "Do NOT paste your client ID. Or use the Email/Password option above."
+            "Do NOT paste your client ID. Or use the Email/Password option above.Save the token somewhere safe, so you can use it later."
         )
 
         id_token = st.text_input("Firebase ID Token")
-        if st.button("Login with Token"):
+        # For the login button, you can also add an emoji:
+        if st.button("🔐 Login with Token"):
             if not is_valid_jwt(id_token):
                 st.error("Please paste a valid Firebase ID Token (not your client ID). It should be a long string with two dots.")
             else:

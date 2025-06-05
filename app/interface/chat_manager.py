@@ -181,12 +181,11 @@ class ChatManager:
     def recommend_links(self):
         country = self.context.get("country", "").lower().replace(" ", "_")
         goal = self.context.get("goal", "").lower()
-        sources = TrustedSourceLoader.load(country, goal)  # You’ll write this next
+        sources = TrustedSourceLoader.load(country, goal)
         if not sources:
             return "I couldn’t find trusted sources for that goal and country yet. Would you like me to search online instead?"
         response = "Here are some helpful links:\n"
         for item in sources:
             response += f"- **{item.name}**: {item.description or 'No description'}\n"
-            for url in item.urls:
-                response += f"  🔗 {url}\n"
+            response += f"  🔗 {item.url}\n"
         return response
